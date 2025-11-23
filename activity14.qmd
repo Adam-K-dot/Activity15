@@ -1,0 +1,66 @@
+---
+title: "Activity #14 — First QMD File"
+author: "Adam Khan"
+date: "2025-11-16"
+format:
+  pdf:
+    number-sections: true
+    toc: false
+    geometry: margin=1in
+execute:
+  echo: false
+  warning: false
+  message: false
+editor:
+  markdown:
+    wrap: 72
+---
+
+# two-way frequency table ()
+
+library(dplyr); library(tidyr); library(knitr)
+
+af_army_enl \<- armed_forces %\>%\
+filter(branch == "Army", component == "Enlisted") %\>%\
+count(sex, rank_name, name = "n")
+
+af_table \<- af_army_enl %\>%\
+pivot_wider(names_from = rank_name, values_from = n, values_fill = 0L)
+%\>%\
+arrange(sex)
+
+kable(af_table, caption = "Table 1. Army (Enlisted): Frequency of
+soldiers by Sex and Rank")
+
+Counts of Army enlisted by sex across E1–E9. Most observations are in
+E4–E6, fewer at E1 and E9.
+
+# Popularity of Baby Names
+
+*Goal:* Load **BabyNames**, filter to five names , and plot
+**2019–2024** as a time series.; facets separate sex (so not
+color-only).
+
+# wrangle
+
+library(dcData); library(dplyr); library(tidyr)\
+data("BabyNames")
+
+nm \<- names(BabyNames)\
+if ("prop" %in% nm) val_col \<- "prop" else\
+if ("n" %in% nm) val_col \<- "n" else\
+val_col \<- "count"
+
+bn \<- BabyNames \|\>\
+rename(value = !!val_col) \|\>\
+mutate(year = as.integer(year))
+
+chosen_names \<- c("Olivia","Emma","Ava","Liam","Noah")
+
+bn_sel \<- bn \|\>\
+filter(name %in% chosen_names, year \>= 2019, year \<= 2024) \|\>\
+group_by(year, sex, name) \|\>\
+summarise(value = sum(value, na.rm = TRUE), .groups = "drop")
+
+**Why these names & what the lines show.** I picked five very common
+names to keep the plot readable. Some stay steady; others drift.
